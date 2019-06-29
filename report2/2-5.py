@@ -15,14 +15,50 @@ map_txt = """\
 max_x = 11
 max_y = 10
 
-start = (9, 5)
-goal = (0, 5)
 
 closed = set()
 
 
+class vector2:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return "({0}, {1})".format(self.x, self.y)
+
+    def __eq__(self, other):
+        if self.x == other.x and self.y == other.y:
+            return True
+        return False
+
+    def __hash__(self):
+        return self.x + self.y
+
+
+class field:
+    field = {}
+
+    def __init__(self, txt):
+        for i in range(len(txt)):
+            for j in range(len(txt[i])):
+                self.field[vector2(j, i)] = map_txt[i][j]
+
+    def get_tile(self, pos):
+        return self.field.get(pos)
+
+    def __str__(self):
+        return str([str(l) for l in self.field])
+
+
+start = vector2(5, 9)
+goal = vector2(5, 0)
+
+main_field = field(map_txt)
+
+
 def cost(from_, to):
-    return abs(from_[0] - to[0]) + abs(from_[1] - to[1])
+    return abs(from_.x - to.x) + abs(from_.y - to.y)
 
 
 def order_by_cost(nodes):
@@ -33,57 +69,45 @@ def order_by_cost(nodes):
                 tmp = pn[ii]
                 pn[ii] = pn[ii+1]
                 pn[ii+1] = tmp
-    print([n[0] for n in pn])
     return [n[0] for n in pn]
 
 
-def best_node(nodes):
-    best_score = 999999
-    for n in nodes:
-        cst = cost(n, goal)
-        if cst < best_score:
-            best_score = cst
-            ans = n
-    print("best is {0}".format(ans))
-    return ans
+def search_internal(pos, route):
 
-
-def search(pos, route):
-
-    if pos[1] < 0 or pos[1] > max_x or pos[0] < 0 or pos[0] > max_y:
+    if main_field.get_tile(pos) == None:
         return -1, route
 
-    if map_txt[pos[0]][pos[1]] == '#':
+    if main_field.get_tile(pos) == '#':
         return -1, route
 
     if pos in closed:
         return -1, route
 
-    print(pos)
-
     if pos == goal:
         closed.add(pos)
-        print("goal")
         return 0, route
 
     open_pos = order_by_cost([
-        (pos[0], pos[1] + 1),
-        (pos[0], pos[1] - 1),
-        (pos[0] + 1, pos[1]),
-        (pos[0] - 1, pos[1])
+        vector2(pos.x+1, pos.y),
+        vector2(pos.x-1, pos.y),
+        vector2(pos.x, pos.y+1),
+        vector2(pos.x, pos.y-1)
     ])
 
     closed.add(pos)
 
     for o in open_pos:
-        s = search(o, route+[o])
-        print("search result of {0} is {1}".format(o, s[0]))
+        s = search_internal(o, route+[o])
         if s[0] == 0:
             return s
 
 
+def search(from_):
+    print([str(n) for n in search_internal(from_, [from_])[1]])
+
+
 def main():
-    print(search(start, [start]))
+    search(start)
 
 
 if __name__ == '__main__':
