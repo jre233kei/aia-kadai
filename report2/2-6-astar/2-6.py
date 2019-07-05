@@ -19,7 +19,6 @@ map_txt = """\
 max_x = 11
 max_y = 10
 
-
 closed = set()
 
 start = vec2.vector2(5, 9)
@@ -29,7 +28,7 @@ main_field = fld.field(map_txt)
 
 
 def cost(from_, to):
-    return abs(from_.x - to.x) + abs(from_.y - to.y)
+    return math.sqrt(abs(from_.x - to.x) + abs(from_.y - to.y))
 
 
 def order_by_cost(nodes):

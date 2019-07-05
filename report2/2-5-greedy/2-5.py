@@ -58,7 +58,7 @@ main_field = field(map_txt)
 
 
 def cost(from_, to):
-    return abs(from_.x - to.x) + abs(from_.y - to.y)
+    return math.sqrt(abs(from_.x - to.x) + abs(from_.y - to.y))
 
 
 def order_by_cost(nodes):
